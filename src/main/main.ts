@@ -20,17 +20,11 @@ import log from 'electron-log';
 import { autoUpdater } from 'electron-updater';
 import { createReadStream } from 'fs';
 import { access } from 'fs/promises';
+import { Pokemon, ShowdownParser } from 'koffing';
 import path from 'path';
 import { createInterface } from 'readline/promises';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
-import {
-    Koffing,
-    Pokemon,
-    PokemonTeam,
-    PokemonTeamSet,
-    ShowdownParser,
-} from 'koffing';
 
 class AppUpdater {
     constructor() {
@@ -55,21 +49,17 @@ const selectFolder = async () => {
 interface Trainer {
     key: string;
     name: string;
-    class: string;
     pic: string;
-    gender: 'male' | 'female';
+    class: string;
+    gender: 'Male' | 'Female';
     music: string;
+    items: string[];
     doubleBattle: boolean;
-    ai: string;
+    ai: string[];
+    mugshot?: 'Purple' | 'Green' | 'Pink' | 'Blue' | 'Yellow';
+    startingStatus?: unknown;
     pokemon?: Pokemon[];
 }
-
-const camelCase = (s: string) =>
-    s
-        .replace(/(?:^\w|[A-Z]|\b\w)/g, (word, index) => {
-            return index === 0 ? word.toLowerCase() : word.toUpperCase();
-        })
-        .replace(/\s+/g, '');
 
 const prepare = async (_: IpcMainInvokeEvent, folder: string) => {
     let hasAppData = false;
@@ -99,10 +89,11 @@ const prepare = async (_: IpcMainInvokeEvent, folder: string) => {
         name: '',
         class: '',
         pic: '',
-        gender: 'male',
+        gender: 'Male',
         music: '',
         doubleBattle: false,
-        ai: '',
+        ai: [],
+        items: [],
     };
     let currTrainer = emptyTrainer;
     let processingPokemon = false;
@@ -129,7 +120,6 @@ const prepare = async (_: IpcMainInvokeEvent, folder: string) => {
         }
         if (line.startsWith('===')) {
             if (currTrainer.key) {
-                console.log(teamStr);
                 const showdownParser = new ShowdownParser(teamStr);
                 const team = showdownParser.parse();
                 currTrainer.pokemon = team.teams[0].pokemon;
@@ -148,14 +138,56 @@ const prepare = async (_: IpcMainInvokeEvent, folder: string) => {
             teamStr += `${line}\n`;
         } else {
             const parts = line.trim().split(':');
-            const key: keyof Trainer = camelCase(
-                parts[0],
-            ) as unknown as keyof Trainer;
-            currTrainer[key] = parts[1].trim();
+            const key = parts[0].trim();
+            const value = parts[1].trim();
+
+            switch (key) {
+                case 'Name':
+                    currTrainer.name = value;
+                    break;
+                case 'Pic':
+                    currTrainer.pic = value;
+                    break;
+                case 'Gender':
+                    if (value === 'Male' || value === 'Female') {
+                        currTrainer.gender = value;
+                    }
+                    break;
+                case 'Music':
+                    currTrainer.music = value;
+                    break;
+                case 'Items':
+                    currTrainer.items = value.split(' / ');
+                    break;
+                case 'Double Battle':
+                    if (value === 'Yes') {
+                        currTrainer.doubleBattle = true;
+                    } else {
+                        currTrainer.doubleBattle = false;
+                    }
+                    break;
+                case 'AI':
+                    currTrainer.ai = value.split(' / ');
+                    break;
+                case 'Mugshot':
+                    if (
+                        value === 'Purple' ||
+                        value === 'Green' ||
+                        value === 'Pink' ||
+                        value === 'Blue' ||
+                        value === 'Yellow'
+                    ) {
+                        currTrainer.mugshot = value;
+                    }
+                    break;
+                case 'Starting Status':
+                    break;
+                default:
+                    break;
+            }
         }
     }
-    // console.log(trainers);
-    console.log(trainers[4].pokemon);
+    return trainers;
 };
 
 if (process.env.NODE_ENV === 'production') {
