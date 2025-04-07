@@ -6,6 +6,7 @@ export type Channels = 'ipc-example';
 
 const electronHandler = {
     selectWorkingFolder: () => ipcRenderer.invoke('selectFolder'),
+    prepare: (folder: string) => ipcRenderer.invoke('prepare', folder),
 };
 
 contextBridge.exposeInMainWorld('electron', electronHandler);

@@ -3,7 +3,7 @@ import { useCallback } from 'react';
 export default function Home() {
     const selectFolder = useCallback(async () => {
         const folder = await window.electron.selectWorkingFolder();
-        console.log(folder);
+        await window.electron.prepare(folder);
     }, []);
 
     return (

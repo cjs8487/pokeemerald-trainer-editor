@@ -8,12 +8,29 @@
  * When running `npm run build` or `npm run build:main`, this file is compiled to
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
-import path from 'path';
-import { app, BrowserWindow, shell, ipcMain, dialog } from 'electron';
-import { autoUpdater } from 'electron-updater';
+import {
+    app,
+    BrowserWindow,
+    dialog,
+    ipcMain,
+    IpcMainInvokeEvent,
+    shell,
+} from 'electron';
 import log from 'electron-log';
+import { autoUpdater } from 'electron-updater';
+import { createReadStream } from 'fs';
+import { access } from 'fs/promises';
+import path from 'path';
+import { createInterface } from 'readline/promises';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
+import {
+    Koffing,
+    Pokemon,
+    PokemonTeam,
+    PokemonTeamSet,
+    ShowdownParser,
+} from 'koffing';
 
 class AppUpdater {
     constructor() {
@@ -33,6 +50,112 @@ const selectFolder = async () => {
         return filePaths[0];
     }
     return null;
+};
+
+interface Trainer {
+    key: string;
+    name: string;
+    class: string;
+    pic: string;
+    gender: 'male' | 'female';
+    music: string;
+    doubleBattle: boolean;
+    ai: string;
+    pokemon?: Pokemon[];
+}
+
+const camelCase = (s: string) =>
+    s
+        .replace(/(?:^\w|[A-Z]|\b\w)/g, (word, index) => {
+            return index === 0 ? word.toLowerCase() : word.toUpperCase();
+        })
+        .replace(/\s+/g, '');
+
+const prepare = async (_: IpcMainInvokeEvent, folder: string) => {
+    let hasAppData = false;
+    try {
+        await access(path.join(folder, 'src', 'data', 'trainers'));
+        hasAppData = true;
+    } catch {
+        hasAppData = false;
+    }
+    if (hasAppData) {
+        // confirm that data may be overwritten
+    } else {
+        // create src/data/trainers
+    }
+    // parse opponents.h
+    // parsse trainer file
+    const fileStream = createReadStream(
+        path.join(folder, 'src', 'data', 'trainers.party'),
+        { encoding: 'utf8' },
+    );
+
+    const trainers: Trainer[] = [];
+    const rl = createInterface(fileStream);
+
+    const emptyTrainer: Trainer = {
+        key: '',
+        name: '',
+        class: '',
+        pic: '',
+        gender: 'male',
+        music: '',
+        doubleBattle: false,
+        ai: '',
+    };
+    let currTrainer = emptyTrainer;
+    let processingPokemon = false;
+    let inComment = true;
+    let teamStr = '';
+
+    // eslint-disable-next-line no-restricted-syntax
+    for await (const line of rl) {
+        if (!inComment) {
+            if (line.startsWith('/*') && !line.endsWith('*/')) {
+                inComment = true;
+                // eslint-disable-next-line no-continue
+                continue;
+            }
+        }
+        if (inComment && line.endsWith('*/')) {
+            inComment = false;
+            // eslint-disable-next-line no-continue
+            continue;
+        }
+        if (inComment) {
+            // eslint-disable-next-line no-continue
+            continue;
+        }
+        if (line.startsWith('===')) {
+            if (currTrainer.key) {
+                console.log(teamStr);
+                const showdownParser = new ShowdownParser(teamStr);
+                const team = showdownParser.parse();
+                currTrainer.pokemon = team.teams[0].pokemon;
+                trainers.push(currTrainer);
+                currTrainer = structuredClone(emptyTrainer);
+                processingPokemon = false;
+                teamStr = '';
+            }
+            currTrainer.key = line.split('===')[1].trim();
+        } else if (line.trim() === '') {
+            // empty lines come between trainers and pokemon
+            if (!processingPokemon) {
+                processingPokemon = true;
+            }
+        } else if (processingPokemon) {
+            teamStr += `${line}\n`;
+        } else {
+            const parts = line.trim().split(':');
+            const key: keyof Trainer = camelCase(
+                parts[0],
+            ) as unknown as keyof Trainer;
+            currTrainer[key] = parts[1].trim();
+        }
+    }
+    // console.log(trainers);
+    console.log(trainers[4].pokemon);
 };
 
 if (process.env.NODE_ENV === 'production') {
@@ -131,6 +254,7 @@ app.on('window-all-closed', () => {
 app.whenReady()
     .then(() => {
         ipcMain.handle('selectFolder', selectFolder);
+        ipcMain.handle('prepare', prepare);
         createWindow();
         app.on('activate', () => {
             // On macOS it's common to re-create a window in the app when the
