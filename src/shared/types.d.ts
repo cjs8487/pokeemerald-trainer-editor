@@ -1,6 +1,6 @@
 import { Pokemon } from 'koffing';
 
-interface Trainer {
+export interface Trainer {
     key: string;
     name: string;
     pic: string;
@@ -13,4 +13,8 @@ interface Trainer {
     mugshot?: 'Purple' | 'Green' | 'Pink' | 'Blue' | 'Yellow';
     startingStatus?: unknown;
     pokemon?: Pokemon[];
+}
+
+export interface TrainerPics {
+    [k: string]: string;
 }

@@ -19,12 +19,13 @@ import {
 import log from 'electron-log';
 import { autoUpdater } from 'electron-updater';
 import { createReadStream } from 'fs';
-import { access } from 'fs/promises';
+import { access, readdir, readFile } from 'fs/promises';
 import { Pokemon, ShowdownParser } from 'koffing';
 import path from 'path';
 import { createInterface } from 'readline/promises';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
+import { TrainerPics } from '../shared/types';
 
 class AppUpdater {
     constructor() {
@@ -148,6 +149,9 @@ const prepare = async (_: IpcMainInvokeEvent, folder: string) => {
                 case 'Pic':
                     currTrainer.pic = value;
                     break;
+                case 'Class':
+                    currTrainer.class = value;
+                    break;
                 case 'Gender':
                     if (value === 'Male' || value === 'Female') {
                         currTrainer.gender = value;
@@ -187,7 +191,82 @@ const prepare = async (_: IpcMainInvokeEvent, folder: string) => {
             }
         }
     }
-    return trainers;
+
+    // load supporting data
+    // include/constants/trainers.h
+    const trainerConstantsPath = path.join(
+        folder,
+        'include',
+        'constants',
+        'trainers.h',
+    );
+    const trainerConstantsStream = createReadStream(trainerConstantsPath);
+    const trainerConstantsRl = createInterface(trainerConstantsStream);
+
+    const trainerPicNames: string[] = [];
+    const trainerClasses: string[] = [];
+
+    // eslint-disable-next-line no-restricted-syntax
+    for await (const line of trainerConstantsRl) {
+        if (line.startsWith('#define')) {
+            const [, constName] = line.split(' ');
+            const matches = constName.match(/TRAINER_(?<type>.*?)_(?<name>.*)/);
+            const type = matches?.groups?.type;
+            const rawName = matches?.groups?.name;
+            if (type && rawName) {
+                const name = rawName
+                    .toLowerCase()
+                    .split('_')
+                    .map(
+                        (word) =>
+                            word.charAt(0).toUpperCase() + word.substring(1),
+                    )
+                    .join(' ');
+                switch (type) {
+                    case 'PIC':
+                        trainerPicNames.push(name);
+                        break;
+                    case 'CLASS':
+                        trainerClasses.push(name);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+    }
+
+    const trainerPicPath = path.join(
+        folder,
+        'graphics',
+        'trainers',
+        'front_pics',
+    );
+    const trainerPicDir = await readdir(trainerPicPath);
+    const trainerPics: TrainerPics = {};
+    await Promise.all(
+        trainerPicDir.map(async (pic) => {
+            if (pic.endsWith('.png')) {
+                const rawName = pic.split('.')[0];
+                const name = rawName
+                    .split('_')
+                    .map(
+                        (word) =>
+                            word.charAt(0).toUpperCase() + word.substring(1),
+                    )
+                    .join(' ');
+                if (trainerPicNames.includes(name)) {
+                    trainerPics[name] = await readFile(
+                        path.join(trainerPicPath, pic),
+                        {
+                            encoding: 'base64',
+                        },
+                    );
+                }
+            }
+        }),
+    );
+    return { trainers, trainerPics, trainerClasses };
 };
 
 if (process.env.NODE_ENV === 'production') {
