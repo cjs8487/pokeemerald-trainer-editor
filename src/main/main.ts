@@ -134,6 +134,8 @@ const prepare = async (_: IpcMainInvokeEvent, folder: string) => {
             // empty lines come between trainers and pokemon
             if (!processingPokemon) {
                 processingPokemon = true;
+            } else {
+                teamStr += '\n';
             }
         } else if (processingPokemon) {
             teamStr += `${line}\n`;
