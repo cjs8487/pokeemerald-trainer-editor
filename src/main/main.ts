@@ -205,6 +205,7 @@ const prepare = async (_: IpcMainInvokeEvent, folder: string) => {
 
     const trainerPicNames: string[] = [];
     const trainerClasses: string[] = [];
+    const encounterMusic: string[] = [];
 
     // eslint-disable-next-line no-restricted-syntax
     for await (const line of trainerConstantsRl) {
@@ -228,6 +229,12 @@ const prepare = async (_: IpcMainInvokeEvent, folder: string) => {
                         break;
                     case 'CLASS':
                         trainerClasses.push(name);
+                        break;
+                    case 'ENCOUNTER':
+                        // eslint-disable-next-line no-case-declarations
+                        const parts = name.split(' ');
+                        parts.shift();
+                        encounterMusic.push(parts.join(' '));
                         break;
                     default:
                         break;
@@ -266,7 +273,13 @@ const prepare = async (_: IpcMainInvokeEvent, folder: string) => {
             }
         }),
     );
-    return { trainers, trainerPics, trainerClasses };
+
+    return {
+        trainers,
+        trainerPics,
+        trainerClasses,
+        encounterMusic,
+    };
 };
 
 if (process.env.NODE_ENV === 'production') {

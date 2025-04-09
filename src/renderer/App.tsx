@@ -11,6 +11,7 @@ export default function App() {
     const [selectedTrainer, setSelectedTrainer] = useState(0);
     const [trainerPics, setTrainerPics] = useState<TrainerPics>({});
     const [trainerClasses, setTrainerClasses] = useState<string[]>([]);
+    const [encounterMusic, setEncounterMusic] = useState<string[]>([]);
 
     const selectFolder = useCallback(async () => {
         const selectedFolder = await window.electron.selectWorkingFolder();
@@ -18,6 +19,7 @@ export default function App() {
         setTrainers(results.trainers);
         setTrainerPics(results.trainerPics);
         setTrainerClasses(results.trainerClasses);
+        setEncounterMusic(results.encounterMusic);
         setFolder(selectedFolder);
     }, []);
 
@@ -72,6 +74,7 @@ export default function App() {
                         style={{
                             maxWidth: '75%',
                             maxHeight: '100%',
+                            flexGrow: 1,
                         }}
                     >
                         <TrainerPanel
@@ -79,6 +82,7 @@ export default function App() {
                             trainer={trainers[selectedTrainer]}
                             trainerPics={trainerPics}
                             trainerClasses={trainerClasses}
+                            encounterMusic={encounterMusic}
                         />
                     </div>
                 </div>

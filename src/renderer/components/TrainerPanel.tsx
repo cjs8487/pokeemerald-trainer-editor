@@ -1,60 +1,47 @@
-import {
-    Button,
-    FormControl,
-    InputLabel,
-    MenuItem,
-    Select,
-    TextField,
-} from '@mui/material';
-import { Field, Form, Formik } from 'formik';
+import { Button } from '@mui/material';
+import { Form, Formik } from 'formik';
 import { Trainer, TrainerPics } from '../../shared/types';
+import TrainerInfo from './TrainerInfo';
 
 interface Props {
     trainer: Trainer;
     trainerPics: TrainerPics;
     trainerClasses: string[];
+    encounterMusic: string[];
 }
 
 export default function TrainerPanel({
     trainer,
     trainerPics,
     trainerClasses,
+    encounterMusic,
 }: Props) {
     return (
         <div>
             <Formik initialValues={trainer} onSubmit={() => {}}>
                 {({ values: { pic } }) => (
-                    <div style={{ display: 'flex' }}>
-                        <Form>
-                            <Field name="name" label="Name" as={TextField} />
-                            <FormControl>
-                                <InputLabel>Pic</InputLabel>
-                                <Field name="pic" label="Pic" as={Select}>
-                                    {Object.keys(trainerPics).map((p) => (
-                                        <MenuItem key={p} value={p}>
-                                            {p}
-                                        </MenuItem>
-                                    ))}
-                                </Field>
-                            </FormControl>
-                            <FormControl>
-                                <InputLabel>Class</InputLabel>
-                                <Field name="class" label="Class" as={Select}>
-                                    {trainerClasses.map((c) => (
-                                        <MenuItem key={c} value={c}>
-                                            {c}
-                                        </MenuItem>
-                                    ))}
-                                </Field>
-                            </FormControl>
-                            <Button type="submit">Submit</Button>
-                        </Form>
-                        <img
-                            src={`data:image/png;base64, ${trainerPics[pic]}`}
-                            alt={pic}
-                            style={{ width: '128px', aspectRatio: '1 / 1' }}
-                        />
-                    </div>
+                    <Form>
+                        <div style={{ display: 'flex', width: '100%' }}>
+                            <TrainerInfo
+                                trainerPics={trainerPics}
+                                trainerClasses={trainerClasses}
+                                encounterMusic={encounterMusic}
+                            />
+                            <img
+                                src={`data:image/png;base64, ${trainerPics[pic]}`}
+                                alt={pic}
+                                style={{
+                                    width: '50%',
+                                    height: '100%',
+                                    flexShrink: 1,
+                                    aspectRatio: '1 / 1',
+                                    objectFit: 'cover',
+                                    imageRendering: 'crisp-edges',
+                                }}
+                            />
+                        </div>
+                        <Button type="submit">Submit</Button>
+                    </Form>
                 )}
             </Formik>
         </div>
