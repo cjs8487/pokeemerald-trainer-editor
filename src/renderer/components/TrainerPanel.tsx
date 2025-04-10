@@ -2,6 +2,7 @@ import { Button } from '@mui/material';
 import { Form, Formik } from 'formik';
 import { Trainer, TrainerPics } from '../../shared/types';
 import TrainerInfo from './TrainerInfo';
+import PokemonSection from './PokemonSection';
 
 interface Props {
     trainer: Trainer;
@@ -40,6 +41,7 @@ export default function TrainerPanel({
                                 }}
                             />
                         </div>
+                        <PokemonSection pokemon={trainer.pokemon ?? []} />
                         <Button type="submit">Submit</Button>
                     </Form>
                 )}
