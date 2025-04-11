@@ -108,6 +108,7 @@
     "@mui/material": "^7.0.1",
     "electron-debug": "^4.1.0",
     "electron-log": "^5.3.2",
+    "electron-settings": "^4.0.4",
     "electron-updater": "^6.3.9",
     "formik": "^2.4.6",
     "koffing": "^1.0.0",

@@ -6,15 +6,34 @@ import {
     Typography,
 } from '@mui/material';
 import { Field } from 'formik';
+import { Pokemon } from 'koffing';
+import { useEffect, useState } from 'react';
+import { pokedex } from '../Pokedex';
 import NumberField from './NumberField';
 
 interface Props {
     index: number;
+    pokemon: Pokemon;
 }
 
-export default function PokemonInfo({ index }: Props) {
+export default function PokemonInfo({ pokemon, index }: Props) {
+    const [sprite, setSprite] = useState('');
+    useEffect(() => {
+        const load = async () => {
+            if (pokemon.name) {
+                try {
+                    const mon = await pokedex.getPokemonByName(pokemon.name);
+                    setSprite(mon.sprites.front_default ?? '');
+                } catch {
+                    //
+                }
+            }
+        };
+        load();
+    }, [pokemon.name]);
     return (
         <>
+            <img src={sprite} alt={pokemon.name} />
             <FormControl>
                 <InputLabel>Species</InputLabel>
                 <Field name="class" as={Select}>

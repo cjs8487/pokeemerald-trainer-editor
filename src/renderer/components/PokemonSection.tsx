@@ -30,7 +30,7 @@ export default function PokemonSection({ pokemon }: Props) {
                     <>
                         {pokemon.map((mon, index) => (
                             <TabPanel value={index}>
-                                <PokemonInfo index={index} />
+                                <PokemonInfo pokemon={mon} index={index} />
                             </TabPanel>
                         ))}
                     </>
