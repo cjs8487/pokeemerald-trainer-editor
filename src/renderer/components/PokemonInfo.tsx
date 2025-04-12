@@ -1,29 +1,33 @@
-import {
-    Box,
-    FormControl,
-    InputLabel,
-    Select,
-    Typography,
-} from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import { Field } from 'formik';
 import { Pokemon } from 'koffing';
 import { useEffect, useState } from 'react';
 import { pokedex } from '../Pokedex';
 import NumberField from './NumberField';
+import { AutocompleteSelectField } from './SelectField';
 
 interface Props {
-    index: number;
     pokemon: Pokemon;
+    index: number;
 }
 
 export default function PokemonInfo({ pokemon, index }: Props) {
     const [sprite, setSprite] = useState('');
+    const [pokemonList, setPokemonList] = useState<string[]>([]);
     useEffect(() => {
         const load = async () => {
             if (pokemon.name) {
                 try {
                     const mon = await pokedex.getPokemonByName(pokemon.name);
                     setSprite(mon.sprites.front_default ?? '');
+                    const monList = await pokedex.getPokemonsList();
+                    setPokemonList(
+                        monList.results.map(
+                            (v) =>
+                                v.name.charAt(0).toUpperCase() +
+                                v.name.slice(1),
+                        ),
+                    );
                 } catch {
                     //
                 }
@@ -31,19 +35,16 @@ export default function PokemonInfo({ pokemon, index }: Props) {
         };
         load();
     }, [pokemon.name]);
+
     return (
         <>
             <img src={sprite} alt={pokemon.name} />
-            <FormControl>
-                <InputLabel>Species</InputLabel>
-                <Field name="class" as={Select}>
-                    {/* {trainerClasses.map((c) => (
-                        <MenuItem key={c} value={c}>
-                            {c}
-                        </MenuItem>
-                    ))} */}
-                </Field>
-            </FormControl>
+            <Field
+                name={`pokemon.${index}.name`}
+                label="Species"
+                options={pokemonList}
+                as={AutocompleteSelectField}
+            />
             <Field
                 name={`pokemon.${index}.level`}
                 as={NumberField}

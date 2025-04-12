@@ -20,7 +20,7 @@ export default function TrainerPanel({
     return (
         <div>
             <Formik initialValues={trainer} onSubmit={() => {}}>
-                {({ values: { pic } }) => (
+                {({ values: { pic, pokemon } }) => (
                     <Form>
                         <div style={{ display: 'flex', width: '100%' }}>
                             <TrainerInfo
@@ -29,7 +29,7 @@ export default function TrainerPanel({
                                 encounterMusic={encounterMusic}
                             />
                             <img
-                                src={`porytrainer://media/trainer/${trainer.pic.toLowerCase().replaceAll(' ', '_')}`}
+                                src={`porytrainer://media/trainer/${pic.toLowerCase().replaceAll(' ', '_')}`}
                                 alt={pic}
                                 style={{
                                     width: '50%',
@@ -41,7 +41,7 @@ export default function TrainerPanel({
                                 }}
                             />
                         </div>
-                        <PokemonSection pokemon={trainer.pokemon ?? []} />
+                        <PokemonSection pokemon={pokemon ?? []} />
                         <Button type="submit">Submit</Button>
                     </Form>
                 )}
