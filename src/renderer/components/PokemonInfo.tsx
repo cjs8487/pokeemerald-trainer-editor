@@ -1,4 +1,5 @@
-import { Box, Typography } from '@mui/material';
+import { Box, Button, Typography } from '@mui/material';
+import Delete from '@mui/icons-material/Delete';
 import { Field } from 'formik';
 import { Pokemon } from 'koffing';
 import { useLayoutEffect, useState } from 'react';
@@ -9,31 +10,36 @@ import { AutocompleteSelectField } from './SelectField';
 interface Props {
     pokemon: Pokemon;
     index: number;
+    remove: () => void;
+    canRemove: boolean;
 }
 
-export default function PokemonInfo({ pokemon, index }: Props) {
+export default function PokemonInfo({
+    pokemon,
+    index,
+    remove,
+    canRemove,
+}: Props) {
     const [loaded, setLoaded] = useState(false);
     const [sprite, setSprite] = useState<string | undefined>(undefined);
     const [pokemonList, setPokemonList] = useState<string[]>([]);
     useLayoutEffect(() => {
         const load = async () => {
-            if (pokemon.name) {
-                try {
+            try {
+                if (pokemon.name) {
                     const mon = await pokedex.getPokemonByName(pokemon.name);
                     setSprite(mon.sprites.front_default ?? '');
-                    const monList = await pokedex.getPokemonsList();
-                    setPokemonList(
-                        monList.results.map(
-                            (v) =>
-                                v.name.charAt(0).toUpperCase() +
-                                v.name.slice(1),
-                        ),
-                    );
-                } catch {
-                    //
                 }
-                setLoaded(true);
+                const monList = await pokedex.getPokemonsList();
+                setPokemonList(
+                    monList.results.map(
+                        (v) => v.name.charAt(0).toUpperCase() + v.name.slice(1),
+                    ),
+                );
+            } catch {
+                //
             }
+            setLoaded(true);
         };
         load();
     }, [pokemon.name]);
@@ -155,6 +161,18 @@ export default function PokemonInfo({ pokemon, index }: Props) {
                         label="Speed"
                     />
                 </Box>
+            </Box>
+            <Box sx={{ display: 'flex' }}>
+                <Box sx={{ flexGrow: 1 }} />
+                {canRemove && (
+                    <Button
+                        onClick={remove}
+                        color="error"
+                        startIcon={<Delete />}
+                    >
+                        Remove
+                    </Button>
+                )}
             </Box>
         </>
     );

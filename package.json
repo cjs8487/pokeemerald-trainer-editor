@@ -104,6 +104,7 @@
     "@electron/notarize": "^3.0.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
+    "@mui/icons-material": "^7.0.2",
     "@mui/lab": "^7.0.0-beta.10",
     "@mui/material": "^7.0.1",
     "electron-debug": "^4.1.0",
