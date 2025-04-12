@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import { AutoSizer, List, ListRowProps } from 'react-virtualized';
 import 'react-virtualized/styles.css';
-import { Trainer, TrainerPics } from '../shared/types';
+import { Trainer } from '../shared/types';
 import './App.css';
 import TrainerPanel from './components/TrainerPanel';
 
@@ -9,7 +9,7 @@ export default function App() {
     const [folder, setFolder] = useState('');
     const [trainers, setTrainers] = useState<Trainer[]>([]);
     const [selectedTrainer, setSelectedTrainer] = useState(0);
-    const [trainerPics, setTrainerPics] = useState<TrainerPics>({});
+    const [trainerPics, setTrainerPics] = useState<string[]>([]);
     const [trainerClasses, setTrainerClasses] = useState<string[]>([]);
     const [encounterMusic, setEncounterMusic] = useState<string[]>([]);
 

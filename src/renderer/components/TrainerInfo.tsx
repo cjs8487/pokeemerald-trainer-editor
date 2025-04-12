@@ -8,10 +8,9 @@ import {
     FormControlLabel,
 } from '@mui/material';
 import { Field } from 'formik';
-import { TrainerPics } from '../../shared/types';
 
 interface Props {
-    trainerPics: TrainerPics;
+    trainerPics: string[];
     trainerClasses: string[];
     encounterMusic: string[];
 }
@@ -27,7 +26,7 @@ export default function TrainerInfo({
             <FormControl>
                 <InputLabel>Pic</InputLabel>
                 <Field name="pic" label="Pic" as={Select}>
-                    {Object.keys(trainerPics).map((p) => (
+                    {trainerPics.map((p) => (
                         <MenuItem key={p} value={p}>
                             {p}
                         </MenuItem>

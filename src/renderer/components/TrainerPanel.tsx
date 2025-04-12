@@ -1,12 +1,12 @@
 import { Button } from '@mui/material';
 import { Form, Formik } from 'formik';
-import { Trainer, TrainerPics } from '../../shared/types';
+import { Trainer } from '../../shared/types';
 import TrainerInfo from './TrainerInfo';
 import PokemonSection from './PokemonSection';
 
 interface Props {
     trainer: Trainer;
-    trainerPics: TrainerPics;
+    trainerPics: string[];
     trainerClasses: string[];
     encounterMusic: string[];
 }
@@ -29,7 +29,7 @@ export default function TrainerPanel({
                                 encounterMusic={encounterMusic}
                             />
                             <img
-                                src={`data:image/png;base64, ${trainerPics[pic]}`}
+                                src={`porytrainer://media/trainer/${trainer.pic.toLowerCase().replaceAll(' ', '_')}`}
                                 alt={pic}
                                 style={{
                                     width: '50%',

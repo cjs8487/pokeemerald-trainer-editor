@@ -14,18 +14,20 @@ import {
     dialog,
     ipcMain,
     IpcMainInvokeEvent,
+    protocol,
     shell,
 } from 'electron';
 import log from 'electron-log';
 import { autoUpdater } from 'electron-updater';
 import { createReadStream } from 'fs';
-import { access, readdir, readFile } from 'fs/promises';
+import { access } from 'fs/promises';
 import { Pokemon, ShowdownParser } from 'koffing';
 import path from 'path';
 import { createInterface } from 'readline/promises';
 import MenuBuilder from './menu';
-import { resolveHtmlPath } from './util';
-import { TrainerPics } from '../shared/types';
+import { protocolHandler } from './protocols';
+import { setWorkingDirectory } from './store';
+import { getAssetPath, resolveHtmlPath } from './util';
 
 class AppUpdater {
     constructor() {
@@ -42,6 +44,7 @@ const selectFolder = async () => {
         properties: ['openDirectory'],
     });
     if (!canceled) {
+        setWorkingDirectory(filePaths[0]);
         return filePaths[0];
     }
     return null;
@@ -205,7 +208,7 @@ const prepare = async (_: IpcMainInvokeEvent, folder: string) => {
     const trainerConstantsStream = createReadStream(trainerConstantsPath);
     const trainerConstantsRl = createInterface(trainerConstantsStream);
 
-    const trainerPicNames: string[] = [];
+    const trainerPics: string[] = [];
     const trainerClasses: string[] = [];
     const encounterMusic: string[] = [];
 
@@ -227,7 +230,7 @@ const prepare = async (_: IpcMainInvokeEvent, folder: string) => {
                     .join(' ');
                 switch (type) {
                     case 'PIC':
-                        trainerPicNames.push(name);
+                        trainerPics.push(name);
                         break;
                     case 'CLASS':
                         trainerClasses.push(name);
@@ -244,37 +247,6 @@ const prepare = async (_: IpcMainInvokeEvent, folder: string) => {
             }
         }
     }
-
-    const trainerPicPath = path.join(
-        folder,
-        'graphics',
-        'trainers',
-        'front_pics',
-    );
-    const trainerPicDir = await readdir(trainerPicPath);
-    const trainerPics: TrainerPics = {};
-    await Promise.all(
-        trainerPicDir.map(async (pic) => {
-            if (pic.endsWith('.png')) {
-                const rawName = pic.split('.')[0];
-                const name = rawName
-                    .split('_')
-                    .map(
-                        (word) =>
-                            word.charAt(0).toUpperCase() + word.substring(1),
-                    )
-                    .join(' ');
-                if (trainerPicNames.includes(name)) {
-                    trainerPics[name] = await readFile(
-                        path.join(trainerPicPath, pic),
-                        {
-                            encoding: 'base64',
-                        },
-                    );
-                }
-            }
-        }),
-    );
 
     return {
         trainers,
@@ -313,14 +285,6 @@ const createWindow = async () => {
     if (isDebug) {
         await installExtensions();
     }
-
-    const RESOURCES_PATH = app.isPackaged
-        ? path.join(process.resourcesPath, 'assets')
-        : path.join(__dirname, '../../assets');
-
-    const getAssetPath = (...paths: string[]): string => {
-        return path.join(RESOURCES_PATH, ...paths);
-    };
 
     mainWindow = new BrowserWindow({
         show: false,
@@ -382,6 +346,7 @@ app.whenReady()
         ipcMain.handle('selectFolder', selectFolder);
         ipcMain.handle('prepare', prepare);
         createWindow();
+        protocol.handle('porytrainer', protocolHandler);
         app.on('activate', () => {
             // On macOS it's common to re-create a window in the app when the
             // dock icon is clicked and there are no other windows open.

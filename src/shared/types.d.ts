@@ -14,7 +14,3 @@ export interface Trainer {
     startingStatus?: unknown;
     pokemon?: Pokemon[];
 }
-
-export interface TrainerPics {
-    [k: string]: string;
-}
