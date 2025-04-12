@@ -26,7 +26,7 @@ import path from 'path';
 import { createInterface } from 'readline/promises';
 import MenuBuilder from './menu';
 import { protocolHandler } from './protocols';
-import { setWorkingDirectory } from './store';
+import { getWorkingDirectory, setWorkingDirectory } from './store';
 import { getAssetPath, resolveHtmlPath } from './util';
 
 class AppUpdater {
@@ -327,6 +327,10 @@ const createWindow = async () => {
     // Remove this if your app does not use auto updates
     // eslint-disable-next-line
     new AppUpdater();
+
+    if (getWorkingDirectory()) {
+        mainWindow.webContents.send('valuesLoaded', getWorkingDirectory());
+    }
 };
 
 /**
@@ -343,8 +347,10 @@ app.on('window-all-closed', () => {
 
 app.whenReady()
     .then(() => {
+        console.log(getWorkingDirectory());
         ipcMain.handle('selectFolder', selectFolder);
         ipcMain.handle('prepare', prepare);
+        ipcMain.handle('storedFolder', getWorkingDirectory);
         createWindow();
         protocol.handle('porytrainer', protocolHandler);
         app.on('activate', () => {

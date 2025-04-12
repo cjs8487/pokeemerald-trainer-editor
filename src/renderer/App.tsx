@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useLayoutEffect, useState } from 'react';
 import { AutoSizer, List, ListRowProps } from 'react-virtualized';
 import 'react-virtualized/styles.css';
 import { Trainer } from '../shared/types';
@@ -6,12 +6,29 @@ import './App.css';
 import TrainerPanel from './components/TrainerPanel';
 
 export default function App() {
+    const [loadChecksComplete, setLoadChecksComplete] = useState(false);
     const [folder, setFolder] = useState('');
     const [trainers, setTrainers] = useState<Trainer[]>([]);
     const [selectedTrainer, setSelectedTrainer] = useState(0);
     const [trainerPics, setTrainerPics] = useState<string[]>([]);
     const [trainerClasses, setTrainerClasses] = useState<string[]>([]);
     const [encounterMusic, setEncounterMusic] = useState<string[]>([]);
+
+    useLayoutEffect(() => {
+        const setup = async () => {
+            const storedFolder = await window.electron.storedFolder();
+            if (storedFolder) {
+                const results = await window.electron.prepare(storedFolder);
+                setTrainers(results.trainers);
+                setTrainerPics(results.trainerPics);
+                setTrainerClasses(results.trainerClasses);
+                setEncounterMusic(results.encounterMusic);
+                setFolder(storedFolder);
+            }
+            setLoadChecksComplete(true);
+        };
+        setup();
+    }, []);
 
     const selectFolder = useCallback(async () => {
         const selectedFolder = await window.electron.selectWorkingFolder();
@@ -44,6 +61,10 @@ export default function App() {
         },
         [trainers],
     );
+
+    if (!loadChecksComplete) {
+        return null;
+    }
 
     return (
         <div style={{ width: '100%', height: '100%' }}>
