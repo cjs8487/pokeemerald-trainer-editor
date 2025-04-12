@@ -1,7 +1,7 @@
 import { Box, Typography } from '@mui/material';
 import { Field } from 'formik';
 import { Pokemon } from 'koffing';
-import { useEffect, useState } from 'react';
+import { useLayoutEffect, useState } from 'react';
 import { pokedex } from '../Pokedex';
 import NumberField from './NumberField';
 import { AutocompleteSelectField } from './SelectField';
@@ -12,9 +12,10 @@ interface Props {
 }
 
 export default function PokemonInfo({ pokemon, index }: Props) {
-    const [sprite, setSprite] = useState('');
+    const [loaded, setLoaded] = useState(false);
+    const [sprite, setSprite] = useState<string | undefined>(undefined);
     const [pokemonList, setPokemonList] = useState<string[]>([]);
-    useEffect(() => {
+    useLayoutEffect(() => {
         const load = async () => {
             if (pokemon.name) {
                 try {
@@ -31,10 +32,15 @@ export default function PokemonInfo({ pokemon, index }: Props) {
                 } catch {
                     //
                 }
+                setLoaded(true);
             }
         };
         load();
     }, [pokemon.name]);
+
+    if (!loaded) {
+        return null;
+    }
 
     return (
         <>
