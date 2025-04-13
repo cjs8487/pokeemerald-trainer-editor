@@ -9,6 +9,7 @@ interface Props {
     trainerPics: string[];
     trainerClasses: string[];
     encounterMusic: string[];
+    pokemonList: string[];
 }
 
 export default function TrainerPanel({
@@ -16,6 +17,7 @@ export default function TrainerPanel({
     trainerPics,
     trainerClasses,
     encounterMusic,
+    pokemonList,
 }: Props) {
     return (
         <Container sx={{ height: '100%', pt: 1 }}>
@@ -58,7 +60,10 @@ export default function TrainerPanel({
                                 />
                             </Box>
                             <Box sx={{ flex: '1 0 auto' }}>
-                                <PokemonSection pokemon={pokemon ?? []} />
+                                <PokemonSection
+                                    pokemon={pokemon ?? []}
+                                    pokemonList={pokemonList}
+                                />
                             </Box>
                             <Box sx={{ display: 'flex' }}>
                                 <Box sx={{ flexGrow: 1 }} />

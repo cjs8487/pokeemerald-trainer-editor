@@ -1,5 +1,5 @@
 import Delete from '@mui/icons-material/Delete';
-import { Box, Button, Skeleton, Typography } from '@mui/material';
+import { Box, Button, Typography } from '@mui/material';
 import { Field } from 'formik';
 import { Pokemon } from 'koffing';
 import { useLayoutEffect, useState } from 'react';
@@ -13,6 +13,7 @@ interface Props {
     index: number;
     remove: () => void;
     canRemove: boolean;
+    pokemonList: string[];
 }
 
 export default function PokemonInfo({
@@ -20,10 +21,9 @@ export default function PokemonInfo({
     index,
     remove,
     canRemove,
+    pokemonList,
 }: Props) {
-    const [loaded, setLoaded] = useState(false);
     const [sprite, setSprite] = useState<string | undefined>(undefined);
-    const [pokemonList, setPokemonList] = useState<string[]>([]);
     useLayoutEffect(() => {
         const load = async () => {
             try {
@@ -31,23 +31,12 @@ export default function PokemonInfo({
                     const mon = await pokedex.getPokemonByName(pokemon.name);
                     setSprite(mon.sprites.front_default ?? '');
                 }
-                const monList = await pokedex.getPokemonsList();
-                setPokemonList(
-                    monList.results.map(
-                        (v) => v.name.charAt(0).toUpperCase() + v.name.slice(1),
-                    ),
-                );
             } catch {
                 //
             }
-            setLoaded(true);
         };
         load();
     }, [pokemon.name]);
-
-    if (!loaded) {
-        return <Skeleton sx={{ height: '100%' }} />;
-    }
 
     return (
         <Box sx={{ width: '100%' }}>

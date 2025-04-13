@@ -9,6 +9,7 @@ import 'react-virtualized/styles.css';
 import { Trainer } from '../shared/types';
 import './App.css';
 import TrainerPanel from './components/TrainerPanel';
+import { pokedex } from './Pokedex';
 
 export default function App() {
     const [loadChecksComplete, setLoadChecksComplete] = useState(false);
@@ -18,6 +19,7 @@ export default function App() {
     const [trainerPics, setTrainerPics] = useState<string[]>([]);
     const [trainerClasses, setTrainerClasses] = useState<string[]>([]);
     const [encounterMusic, setEncounterMusic] = useState<string[]>([]);
+    const [pokemonList, setPokemonList] = useState<string[]>([]);
 
     useLayoutEffect(() => {
         const setup = async () => {
@@ -30,6 +32,14 @@ export default function App() {
                 setEncounterMusic(results.encounterMusic);
                 setFolder(storedFolder);
             }
+
+            const monList = await pokedex.getPokemonsList();
+            setPokemonList(
+                monList.results.map(
+                    (v) => v.name.charAt(0).toUpperCase() + v.name.slice(1),
+                ),
+            );
+
             setLoadChecksComplete(true);
         };
         setup();
@@ -126,6 +136,7 @@ export default function App() {
                             trainerPics={trainerPics}
                             trainerClasses={trainerClasses}
                             encounterMusic={encounterMusic}
+                            pokemonList={pokemonList}
                         />
                     </Box>
                 </Box>
