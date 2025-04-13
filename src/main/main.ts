@@ -1,3 +1,4 @@
+/* eslint-disable no-continue */
 /* eslint global-require: off, no-console: off, promise/always-return: off */
 
 /**
@@ -100,8 +101,9 @@ const prepare = async (_: IpcMainInvokeEvent, folder: string) => {
         items: [],
     };
     let currTrainer = emptyTrainer;
+    let processingTrainer = false;
     let processingPokemon = false;
-    let inComment = true;
+    let inComment = false;
     let teamStr = '';
 
     // eslint-disable-next-line no-restricted-syntax
@@ -109,17 +111,18 @@ const prepare = async (_: IpcMainInvokeEvent, folder: string) => {
         if (!inComment) {
             if (line.startsWith('/*') && !line.endsWith('*/')) {
                 inComment = true;
-                // eslint-disable-next-line no-continue
+                continue;
+            }
+            // single line block comment
+            if (line.startsWith('/*') && line.endsWith('*/')) {
                 continue;
             }
         }
         if (inComment && line.endsWith('*/')) {
             inComment = false;
-            // eslint-disable-next-line no-continue
             continue;
         }
         if (inComment) {
-            // eslint-disable-next-line no-continue
             continue;
         }
         if (line.startsWith('===')) {
@@ -129,15 +132,17 @@ const prepare = async (_: IpcMainInvokeEvent, folder: string) => {
                 currTrainer.pokemon = team.teams[0].pokemon;
                 trainers.push(currTrainer);
                 currTrainer = structuredClone(emptyTrainer);
+                processingTrainer = true;
                 processingPokemon = false;
                 teamStr = '';
             }
             currTrainer.key = line.split('===')[1].trim();
         } else if (line.trim() === '') {
             // empty lines come between trainers and pokemon
-            if (!processingPokemon) {
+            if (processingTrainer && !processingPokemon) {
+                processingTrainer = false;
                 processingPokemon = true;
-            } else {
+            } else if (processingPokemon) {
                 teamStr += '\n';
             }
         } else if (processingPokemon) {
@@ -347,7 +352,6 @@ app.on('window-all-closed', () => {
 
 app.whenReady()
     .then(() => {
-        console.log(getWorkingDirectory());
         ipcMain.handle('selectFolder', selectFolder);
         ipcMain.handle('prepare', prepare);
         ipcMain.handle('storedFolder', getWorkingDirectory);
