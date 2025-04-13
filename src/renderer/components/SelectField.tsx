@@ -10,7 +10,7 @@ interface Props {
     sx?: SxProps;
 }
 
-export function AutocompleteSelectField({ name, label, options }: Props) {
+export function AutocompleteSelectField({ name, label, options, sx }: Props) {
     const [field, meta, helpers] = useField<string | null>(name);
 
     return (
@@ -23,6 +23,7 @@ export function AutocompleteSelectField({ name, label, options }: Props) {
             blurOnSelect
             clearOnBlur
             options={options}
+            sx={sx}
             renderInput={(params) => (
                 <TextField
                     // eslint-disable-next-line react/jsx-props-no-spreading

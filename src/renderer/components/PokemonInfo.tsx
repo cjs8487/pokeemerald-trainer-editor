@@ -8,6 +8,22 @@ import NumberField from './NumberField';
 import { AutocompleteSelectField } from './SelectField';
 import SliderField from './SliderField';
 
+interface MoveSelectProps {
+    monIndex: number;
+    slot: number;
+    moves: string[];
+}
+
+function MoveSelect({ monIndex, slot, moves }: MoveSelectProps) {
+    return (
+        <AutocompleteSelectField
+            name={`pokemon.${monIndex}.moves.${slot}`}
+            label=""
+            options={moves}
+        />
+    );
+}
+
 interface Props {
     pokemon: Pokemon;
     index: number;
@@ -22,12 +38,25 @@ export default function PokemonInfo({
     canRemove,
 }: Props) {
     const [sprite, setSprite] = useState<string | undefined>(undefined);
+    const [moveList, setMoveList] = useState<string[]>();
+
     useLayoutEffect(() => {
         const load = async () => {
             try {
                 if (pokemon.name) {
                     const mon = await pokedex.getPokemonByName(pokemon.name);
                     setSprite(mon.sprites.front_default ?? '');
+                    setMoveList(
+                        mon.moves.map((m) =>
+                            m.move.name
+                                .split('-')
+                                .map(
+                                    (w) =>
+                                        w.charAt(0).toUpperCase() + w.slice(1),
+                                )
+                                .join(' '),
+                        ),
+                    );
                 }
             } catch {
                 //
@@ -38,14 +67,14 @@ export default function PokemonInfo({
 
     return (
         <Box sx={{ width: '100%', pt: 1 }}>
-            <Box sx={{ width: '100%', display: 'flex' }}>
+            <Box sx={{ width: '100%', display: 'flex', columnGap: 1 }}>
                 <img
                     src={sprite}
                     alt={pokemon.name}
                     style={{
-                        width: '33%',
+                        flex: '0 1 33%',
                         aspectRatio: '1 / 1',
-                        objectFit: 'cover',
+                        objectFit: 'contain',
                         imageRendering: 'crisp-edges',
                     }}
                 />
@@ -54,6 +83,7 @@ export default function PokemonInfo({
                         display: 'flex',
                         flexDirection: 'column',
                         rowGap: 1.5,
+                        flex: '1 0 67%',
                     }}
                 >
                     <Field
@@ -69,6 +99,44 @@ export default function PokemonInfo({
                         max={100}
                         label="Level"
                     />
+                    {moveList && (
+                        <Box
+                            component="fieldset"
+                            sx={{
+                                borderColor: 'divider',
+                                display: 'grid',
+                                gridTemplateColumns: 'repeat(2, 1fr)',
+                                columnGap: 1.5,
+                                rowGap: 1,
+                                width: '100%',
+                                justifyItems: 'stretch',
+                            }}
+                        >
+                            <Typography component="legend">Moves</Typography>
+
+                            <MoveSelect
+                                monIndex={index}
+                                slot={0}
+                                moves={moveList}
+                            />
+                            <MoveSelect
+                                monIndex={index}
+                                slot={1}
+                                moves={moveList}
+                            />
+
+                            <MoveSelect
+                                monIndex={index}
+                                slot={2}
+                                moves={moveList}
+                            />
+                            <MoveSelect
+                                monIndex={index}
+                                slot={3}
+                                moves={moveList}
+                            />
+                        </Box>
+                    )}
                 </Box>
             </Box>
             <Box sx={{ width: '100%' }}>
