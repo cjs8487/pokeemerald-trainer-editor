@@ -1,5 +1,5 @@
 import Delete from '@mui/icons-material/Delete';
-import { Box, Button, Typography } from '@mui/material';
+import { Box, Button, Skeleton, Typography } from '@mui/material';
 import { Field } from 'formik';
 import { Pokemon } from 'koffing';
 import { useLayoutEffect, useState } from 'react';
@@ -46,25 +46,44 @@ export default function PokemonInfo({
     }, [pokemon.name]);
 
     if (!loaded) {
-        return null;
+        return <Skeleton sx={{ height: '100%' }} />;
     }
 
     return (
         <Box sx={{ width: '100%' }}>
-            <img src={sprite} alt={pokemon.name} />
-            <Field
-                name={`pokemon.${index}.name`}
-                label="Species"
-                options={pokemonList}
-                as={AutocompleteSelectField}
-            />
-            <Field
-                name={`pokemon.${index}.level`}
-                as={NumberField}
-                min={1}
-                max={100}
-                label="Level"
-            />
+            <Box sx={{ width: '100%', display: 'flex' }}>
+                <img
+                    src={sprite}
+                    alt={pokemon.name}
+                    style={{
+                        width: '33%',
+                        aspectRatio: '1 / 1',
+                        objectFit: 'cover',
+                        imageRendering: 'crisp-edges',
+                    }}
+                />
+                <Box
+                    sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        rowGap: 1.5,
+                    }}
+                >
+                    <Field
+                        name={`pokemon.${index}.name`}
+                        label="Species"
+                        options={pokemonList}
+                        as={AutocompleteSelectField}
+                    />
+                    <Field
+                        name={`pokemon.${index}.level`}
+                        as={NumberField}
+                        min={1}
+                        max={100}
+                        label="Level"
+                    />
+                </Box>
+            </Box>
             <Box sx={{ width: '100%' }}>
                 <Typography>IVs</Typography>
                 <Box sx={{ display: 'flex', width: '100%' }}>

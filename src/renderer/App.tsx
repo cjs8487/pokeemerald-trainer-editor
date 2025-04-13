@@ -114,10 +114,10 @@ export default function App() {
                     </Box>
                     <Box
                         sx={{
-                            maxWidth: '70%',
+                            width: '70%',
+                            height: '100%',
                             maxHeight: '100%',
-                            flex: '1 1 auto',
-                            paddingLeft: 2,
+                            overflowY: 'auto',
                         }}
                     >
                         <TrainerPanel

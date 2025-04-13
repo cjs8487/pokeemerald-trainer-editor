@@ -6,6 +6,7 @@ import {
     MenuItem,
     Switch,
     FormControlLabel,
+    Box,
 } from '@mui/material';
 import { Field } from 'formik';
 
@@ -21,33 +22,59 @@ export default function TrainerInfo({
     encounterMusic,
 }: Props) {
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
-            <Field name="name" label="Name" as={TextField} />
+        <Box
+            sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                flexGrow: 1,
+                rowGap: 1.5,
+            }}
+        >
+            <Box sx={{ display: 'flex', columnGap: 1.5 }}>
+                <Field
+                    name="name"
+                    label="Name"
+                    as={TextField}
+                    sx={{ flex: '1 0 auto' }}
+                />
+                <FormControl sx={{ flex: '1 0 auto', maxWidth: '25%' }}>
+                    <InputLabel id="trainer-gender-label">Gender</InputLabel>
+                    <Field name="gender" label="Gender" as={Select}>
+                        <MenuItem value="Male">Male</MenuItem>
+                        <MenuItem value="Female">Female</MenuItem>
+                    </Field>
+                </FormControl>
+            </Box>
+            <Box sx={{ display: 'flex', columnGap: 1.5 }}>
+                <FormControl sx={{ flex: '1 1 auto' }}>
+                    <InputLabel>Pic</InputLabel>
+                    <Field name="pic" label="Pic" as={Select}>
+                        {trainerPics.map((p) => (
+                            <MenuItem key={p} value={p}>
+                                {p}
+                            </MenuItem>
+                        ))}
+                    </Field>
+                </FormControl>
+                <FormControl sx={{ flex: '1 1 auto' }}>
+                    <InputLabel>Class</InputLabel>
+                    <Field name="class" label="Class" as={Select}>
+                        {trainerClasses.map((c) => (
+                            <MenuItem key={c} value={c}>
+                                {c}
+                            </MenuItem>
+                        ))}
+                    </Field>
+                </FormControl>
+            </Box>
             <FormControl>
-                <InputLabel>Pic</InputLabel>
-                <Field name="pic" label="Pic" as={Select}>
-                    {trainerPics.map((p) => (
-                        <MenuItem key={p} value={p}>
-                            {p}
+                <InputLabel>Music</InputLabel>
+                <Field name="music" label="Music" as={Select}>
+                    {encounterMusic.map((m) => (
+                        <MenuItem key={m} value={m}>
+                            {m}
                         </MenuItem>
                     ))}
-                </Field>
-            </FormControl>
-            <FormControl>
-                <InputLabel>Class</InputLabel>
-                <Field name="class" as={Select}>
-                    {trainerClasses.map((c) => (
-                        <MenuItem key={c} value={c}>
-                            {c}
-                        </MenuItem>
-                    ))}
-                </Field>
-            </FormControl>
-            <FormControl>
-                <InputLabel>Gender</InputLabel>
-                <Field name="gender" as={Select}>
-                    <MenuItem value="Male">Male</MenuItem>
-                    <MenuItem value="Female">Female</MenuItem>
                 </Field>
             </FormControl>
             <FormControlLabel
@@ -56,16 +83,6 @@ export default function TrainerInfo({
                 }
                 label="Double Battle"
             />
-            <FormControl>
-                <InputLabel>Music</InputLabel>
-                <Field name="music" as={Select}>
-                    {encounterMusic.map((m) => (
-                        <MenuItem key={m} value={m}>
-                            {m}
-                        </MenuItem>
-                    ))}
-                </Field>
-            </FormControl>
-        </div>
+        </Box>
     );
 }

@@ -4,6 +4,7 @@ import { Box, Button, Tab } from '@mui/material';
 import { FieldArray } from 'formik';
 import { Pokemon } from 'koffing';
 import { SyntheticEvent, useLayoutEffect, useState } from 'react';
+import { AutoSizer } from 'react-virtualized';
 import PokemonInfo from './PokemonInfo';
 
 interface Props {
@@ -24,49 +25,66 @@ export default function PokemonSection({ pokemon }: Props) {
     };
 
     return (
-        <FieldArray name="pokemon">
-            {({ push, remove }) => (
-                <Box sx={{ display: 'flex' }}>
-                    <TabContext value={selected}>
-                        <Box sx={{ borderRight: 1, borderColor: 'divider' }}>
-                            <TabList
-                                onChange={handleChange}
-                                orientation="vertical"
-                            >
+        <AutoSizer disableWidth>
+            {({ height }) => (
+                <FieldArray name="pokemon">
+                    {({ push, remove }) => (
+                        <TabContext value={selected}>
+                            <Box sx={{ display: 'flex', height: '100%' }}>
+                                <Box
+                                    sx={{
+                                        borderRight: 1,
+                                        borderColor: 'divider',
+                                        flex: '1 1 20%',
+                                        width: '20%',
+                                        height,
+                                    }}
+                                >
+                                    <TabList
+                                        onChange={handleChange}
+                                        orientation="vertical"
+                                        sx={{ maxHeight: height }}
+                                        visibleScrollbar
+                                    >
+                                        {pokemon.map((mon, index) => (
+                                            <Tab
+                                                label={mon.name ?? 'Unselected'}
+                                                value={index}
+                                            />
+                                        ))}
+                                    </TabList>
+                                    <Button
+                                        sx={{ textAlign: 'center' }}
+                                        color="success"
+                                        startIcon={<Add />}
+                                        onClick={() => {
+                                            const mon = new Pokemon();
+                                            mon.level = 1;
+                                            push(mon);
+                                            setSelected(pokemon.length);
+                                        }}
+                                    >
+                                        Add Pokemon
+                                    </Button>
+                                </Box>
                                 {pokemon.map((mon, index) => (
-                                    <Tab
-                                        label={`${mon.name} lvl ${mon.level}`}
+                                    <TabPanel
                                         value={index}
-                                    />
+                                        sx={{ width: '80%' }}
+                                    >
+                                        <PokemonInfo
+                                            pokemon={mon}
+                                            index={index}
+                                            remove={() => remove(index)}
+                                            canRemove={pokemon.length > 1}
+                                        />
+                                    </TabPanel>
                                 ))}
-                            </TabList>
-                            <Button
-                                sx={{ textAlign: 'center' }}
-                                color="success"
-                                startIcon={<Add />}
-                                onClick={() => {
-                                    const mon = new Pokemon();
-                                    mon.level = 1;
-                                    push(mon);
-                                    setSelected(pokemon.length);
-                                }}
-                            >
-                                Add Pokemon
-                            </Button>
-                        </Box>
-                        {pokemon.map((mon, index) => (
-                            <TabPanel value={index} sx={{ width: '100%' }}>
-                                <PokemonInfo
-                                    pokemon={mon}
-                                    index={index}
-                                    remove={() => remove(index)}
-                                    canRemove={pokemon.length > 1}
-                                />
-                            </TabPanel>
-                        ))}
-                    </TabContext>
-                </Box>
+                            </Box>
+                        </TabContext>
+                    )}
+                </FieldArray>
             )}
-        </FieldArray>
+        </AutoSizer>
     );
 }
