@@ -1,8 +1,8 @@
-import { Box, Button, Container } from '@mui/material';
+import { Box, Button } from '@mui/material';
 import { Form, Formik } from 'formik';
 import { Trainer } from '../../shared/types';
-import TrainerInfo from './TrainerInfo';
 import PokemonSection from './PokemonSection';
+import TrainerInfo from './TrainerInfo';
 
 interface Props {
     trainer: Trainer;
@@ -20,7 +20,7 @@ export default function TrainerPanel({
     pokemonList,
 }: Props) {
     return (
-        <Container sx={{ height: '100%', pt: 1 }}>
+        <Box sx={{ height: '100%', pt: 1, px: 1 }}>
             <Formik initialValues={trainer} onSubmit={() => {}}>
                 {({ values: { pic, pokemon } }) => (
                     <Form style={{ height: '100%' }}>
@@ -75,6 +75,6 @@ export default function TrainerPanel({
                     </Form>
                 )}
             </Formik>
-        </Container>
+        </Box>
     );
 }
