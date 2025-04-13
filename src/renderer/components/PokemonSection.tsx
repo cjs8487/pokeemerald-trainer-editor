@@ -1,6 +1,7 @@
 import Add from '@mui/icons-material/Add';
 import {
     Box,
+    Container,
     List,
     ListItemButton,
     ListItemIcon,
@@ -35,6 +36,7 @@ export default function PokemonSection({ pokemon, pokemonList }: Props) {
                             <List
                                 sx={{
                                     maxHeight: height,
+                                    overflowY: 'auto',
                                     borderRight: 1,
                                     borderColor: 'divider',
                                     flex: '1 1 20%',
@@ -44,7 +46,8 @@ export default function PokemonSection({ pokemon, pokemonList }: Props) {
                             >
                                 {pokemon.map((mon, index) => (
                                     <ListItemButton
-                                        key={JSON.stringify(mon)}
+                                        // eslint-disable-next-line react/no-array-index-key
+                                        key={index}
                                         onClick={() => setSelected(index)}
                                         selected={index === selected}
                                         sx={{
@@ -79,9 +82,17 @@ export default function PokemonSection({ pokemon, pokemonList }: Props) {
                                     <ListItemText primary="Add Pokemon" />
                                 </ListItemButton>
                             </List>
-                            <Box sx={{ width: '80%' }}>
+                            <Container
+                                sx={{
+                                    width: '80%',
+                                    height,
+                                    maxHeight: height,
+                                    overflowY: 'auto',
+                                }}
+                            >
                                 {pokemon[selected] && (
                                     <PokemonInfo
+                                        key={selected}
                                         pokemon={pokemon[selected]}
                                         index={selected}
                                         remove={() => remove(selected)}
@@ -89,7 +100,7 @@ export default function PokemonSection({ pokemon, pokemonList }: Props) {
                                         pokemonList={pokemonList}
                                     />
                                 )}
-                            </Box>
+                            </Container>
                         </Box>
                     )}
                 </FieldArray>

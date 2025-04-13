@@ -20,57 +20,65 @@ export default function TrainerPanel({
     pokemonList,
 }: Props) {
     return (
-        <Box sx={{ height: '100%', pt: 1, px: 1 }}>
+        <Box
+            sx={{
+                height: '100%',
+                maxHeight: '100%',
+                overflowY: 'auto',
+                px: 1,
+            }}
+        >
             <Formik initialValues={trainer} onSubmit={() => {}}>
                 {({ values: { pic, pokemon } }) => (
-                    <Form style={{ height: '100%' }}>
+                    <Form
+                        style={{
+                            height: '100%',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            maxHeight: '100%',
+                            overflowY: 'auto',
+                            paddingTop: 8,
+                        }}
+                    >
                         <Box
                             sx={{
                                 display: 'flex',
-                                flexDirection: 'column',
-                                height: '100%',
+                                width: '100%',
+                                borderBottom: 1,
+                                borderColor: 'divider',
+                                pb: 1,
+                                mb: 2,
                             }}
                         >
-                            <Box
-                                sx={{
-                                    display: 'flex',
-                                    width: '100%',
-                                    borderBottom: 1,
-                                    borderColor: 'divider',
-                                    pb: 1,
-                                    mb: 2,
+                            <TrainerInfo
+                                trainerPics={trainerPics}
+                                trainerClasses={trainerClasses}
+                                encounterMusic={encounterMusic}
+                            />
+                            <img
+                                src={`porytrainer://media/trainer/${pic.toLowerCase().replaceAll(' ', '_')}`}
+                                alt={pic}
+                                style={{
+                                    width: '33%',
+                                    height: '100%',
+                                    flexShrink: 1,
+                                    aspectRatio: '1 / 1',
+                                    objectFit: 'cover',
+                                    imageRendering: 'crisp-edges',
                                 }}
-                            >
-                                <TrainerInfo
-                                    trainerPics={trainerPics}
-                                    trainerClasses={trainerClasses}
-                                    encounterMusic={encounterMusic}
-                                />
-                                <img
-                                    src={`porytrainer://media/trainer/${pic.toLowerCase().replaceAll(' ', '_')}`}
-                                    alt={pic}
-                                    style={{
-                                        width: '33%',
-                                        height: '100%',
-                                        flexShrink: 1,
-                                        aspectRatio: '1 / 1',
-                                        objectFit: 'cover',
-                                        imageRendering: 'crisp-edges',
-                                    }}
-                                />
-                            </Box>
-                            <Box sx={{ flex: '1 0 auto' }}>
-                                <PokemonSection
-                                    pokemon={pokemon ?? []}
-                                    pokemonList={pokemonList}
-                                />
-                            </Box>
-                            <Box sx={{ display: 'flex' }}>
-                                <Box sx={{ flexGrow: 1 }} />
-                                <Button type="submit" color="success">
-                                    Save
-                                </Button>
-                            </Box>
+                            />
+                        </Box>
+                        <Box sx={{ flex: '1 0 auto' }}>
+                            <PokemonSection
+                                pokemon={pokemon ?? []}
+                                pokemonList={pokemonList}
+                            />
+                        </Box>
+                        <Box sx={{ display: 'flex' }}>
+                            <Box sx={{ flexGrow: 1 }} />
+                            <Button type="submit" color="success">
+                                Save
+                            </Button>
                         </Box>
                     </Form>
                 )}

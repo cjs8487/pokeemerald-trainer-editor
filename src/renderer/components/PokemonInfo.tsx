@@ -39,7 +39,7 @@ export default function PokemonInfo({
     }, [pokemon.name]);
 
     return (
-        <Box sx={{ width: '100%' }}>
+        <Box sx={{ width: '100%', pt: 1 }}>
             <Box sx={{ width: '100%', display: 'flex' }}>
                 <img
                     src={sprite}
