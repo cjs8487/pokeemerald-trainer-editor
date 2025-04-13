@@ -1,11 +1,12 @@
-import { Box, Button, Typography } from '@mui/material';
 import Delete from '@mui/icons-material/Delete';
+import { Box, Button, Typography } from '@mui/material';
 import { Field } from 'formik';
 import { Pokemon } from 'koffing';
 import { useLayoutEffect, useState } from 'react';
 import { pokedex } from '../Pokedex';
 import NumberField from './NumberField';
 import { AutocompleteSelectField } from './SelectField';
+import SliderField from './SliderField';
 
 interface Props {
     pokemon: Pokemon;
@@ -49,7 +50,7 @@ export default function PokemonInfo({
     }
 
     return (
-        <>
+        <Box sx={{ width: '100%' }}>
             <img src={sprite} alt={pokemon.name} />
             <Field
                 name={`pokemon.${index}.name`}
@@ -64,100 +65,94 @@ export default function PokemonInfo({
                 max={100}
                 label="Level"
             />
-            <Box>
+            <Box sx={{ width: '100%' }}>
                 <Typography>IVs</Typography>
-                <Box sx={{ display: 'flex' }}>
-                    <Field
+                <Box sx={{ display: 'flex', width: '100%' }}>
+                    <SliderField
                         name={`pokemon.${index}.ivs.hp`}
-                        as={NumberField}
                         min={0}
                         max={31}
                         label="HP"
                     />
-                    <Field
+                    <SliderField
                         name={`pokemon.${index}.ivs.atk`}
-                        as={NumberField}
                         min={0}
                         max={31}
                         label="Attack"
                     />
-                    <Field
+                    <SliderField
                         name={`pokemon.${index}.ivs.def`}
-                        as={NumberField}
                         min={0}
                         max={31}
                         label="Defense"
                     />
                 </Box>
-                <Box sx={{ display: 'flex' }}>
-                    <Field
+                <Box sx={{ display: 'flex', width: '100%' }}>
+                    <SliderField
                         name={`pokemon.${index}.ivs.spa`}
-                        as={NumberField}
                         min={0}
                         max={31}
-                        label="Special Attack"
+                        label="Sp. Attack"
                     />
-                    <Field
+                    <SliderField
                         name={`pokemon.${index}.ivs.spd`}
-                        as={NumberField}
                         min={0}
                         max={31}
-                        label="Special Defense"
+                        label="Sp. Defense"
                     />
-                    <Field
+                    <SliderField
                         name={`pokemon.${index}.ivs.spe`}
-                        as={NumberField}
                         min={0}
                         max={31}
                         label="Speed"
                     />
                 </Box>
             </Box>
-            <Box>
+            <Box sx={{ width: '100%' }}>
                 <Typography>EVs</Typography>
-                <Box sx={{ display: 'flex' }}>
-                    <Field
+                <Box sx={{ display: 'flex', width: '100%' }}>
+                    <SliderField
                         name={`pokemon.${index}.evs.hp`}
-                        as={NumberField}
                         min={0}
-                        max={255}
+                        max={252}
+                        step={4}
                         label="HP"
                     />
-                    <Field
+                    <SliderField
                         name={`pokemon.${index}.evs.atk`}
-                        as={NumberField}
                         min={0}
-                        max={255}
+                        max={252}
+                        step={4}
                         label="Attack"
                     />
-                    <Field
+                    <SliderField
                         name={`pokemon.${index}.evs.def`}
-                        as={NumberField}
                         min={0}
-                        max={255}
+                        max={252}
+                        step={4}
                         label="Defense"
                     />
                 </Box>
-                <Box sx={{ display: 'flex' }}>
-                    <Field
+                <Box sx={{ display: 'flex', width: '100%' }}>
+                    <SliderField
                         name={`pokemon.${index}.evs.spa`}
-                        as={NumberField}
                         min={0}
-                        max={255}
-                        label="Special Attack"
+                        max={252}
+                        step={4}
+                        label="Sp. Attack"
                     />
-                    <Field
+                    <SliderField
                         name={`pokemon.${index}.evs.spd`}
-                        as={NumberField}
                         min={0}
-                        max={255}
-                        label="Special Defense"
+                        max={252}
+                        step={4}
+                        label="Sp. Defense"
                     />
-                    <Field
+                    <SliderField
                         name={`pokemon.${index}.evs.spe`}
-                        as={NumberField}
                         min={0}
-                        max={255}
+                        max={252}
+                        step={4}
                         label="Speed"
                     />
                 </Box>
@@ -174,6 +169,6 @@ export default function PokemonInfo({
                     </Button>
                 )}
             </Box>
-        </>
+        </Box>
     );
 }

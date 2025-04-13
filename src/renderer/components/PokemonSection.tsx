@@ -55,7 +55,7 @@ export default function PokemonSection({ pokemon }: Props) {
                             </Button>
                         </Box>
                         {pokemon.map((mon, index) => (
-                            <TabPanel value={index}>
+                            <TabPanel value={index} sx={{ width: '100%' }}>
                                 <PokemonInfo
                                     pokemon={mon}
                                     index={index}
