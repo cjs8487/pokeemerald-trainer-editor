@@ -36,7 +36,7 @@ export default function SliderField({
     };
 
     return (
-        <Box sx={{ width: '100%', paddingX: 1 }}>
+        <Box sx={{ width: '100%' }}>
             <FormControl fullWidth>
                 <FormLabel>{label}</FormLabel>
                 <Grid container spacing={2} sx={{ alignItems: 'center' }}>
@@ -45,7 +45,7 @@ export default function SliderField({
                             min={min}
                             max={max}
                             step={step}
-                            value={value}
+                            value={value ?? 0}
                             onChange={handleSliderChange}
                             valueLabelDisplay="auto"
                             size="small"
@@ -53,7 +53,8 @@ export default function SliderField({
                     </Grid>
                     <Grid>
                         <Input
-                            value={value}
+                            name={name}
+                            value={value ?? 0}
                             size="small"
                             onChange={handleInputChange}
                             onBlur={onBlur}
