@@ -9,20 +9,23 @@ import 'react-virtualized/styles.css';
 import { Trainer } from '../shared/types';
 import './App.css';
 import TrainerPanel from './components/TrainerPanel';
-import { pokedex } from './Pokedex';
+import { loadGlobalData } from './Pokedex';
 
 export default function App() {
     const [loadChecksComplete, setLoadChecksComplete] = useState(false);
+    const [globalsLoaded, setGlobalsLoaded] = useState(false);
     const [folder, setFolder] = useState('');
     const [trainers, setTrainers] = useState<Trainer[]>([]);
     const [selectedTrainer, setSelectedTrainer] = useState(0);
     const [trainerPics, setTrainerPics] = useState<string[]>([]);
     const [trainerClasses, setTrainerClasses] = useState<string[]>([]);
     const [encounterMusic, setEncounterMusic] = useState<string[]>([]);
-    const [pokemonList, setPokemonList] = useState<string[]>([]);
 
     useLayoutEffect(() => {
         const setup = async () => {
+            loadGlobalData(() => {
+                setGlobalsLoaded(true);
+            });
             const storedFolder = await window.electron.storedFolder();
             if (storedFolder) {
                 const results = await window.electron.prepare(storedFolder);
@@ -32,14 +35,6 @@ export default function App() {
                 setEncounterMusic(results.encounterMusic);
                 setFolder(storedFolder);
             }
-
-            const monList = await pokedex.getPokemonsList();
-            setPokemonList(
-                monList.results.map(
-                    (v) => v.name.charAt(0).toUpperCase() + v.name.slice(1),
-                ),
-            );
-
             setLoadChecksComplete(true);
         };
         setup();
@@ -84,7 +79,7 @@ export default function App() {
         [trainers, selectedTrainer],
     );
 
-    if (!loadChecksComplete) {
+    if (!loadChecksComplete || !globalsLoaded) {
         return null;
     }
 
@@ -136,7 +131,6 @@ export default function App() {
                             trainerPics={trainerPics}
                             trainerClasses={trainerClasses}
                             encounterMusic={encounterMusic}
-                            pokemonList={pokemonList}
                         />
                     </Box>
                 </Box>

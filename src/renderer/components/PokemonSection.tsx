@@ -15,10 +15,9 @@ import PokemonInfo from './PokemonInfo';
 
 interface Props {
     pokemon: Pokemon[];
-    pokemonList: string[];
 }
 
-export default function PokemonSection({ pokemon, pokemonList }: Props) {
+export default function PokemonSection({ pokemon }: Props) {
     const [selected, setSelected] = useState(0);
 
     useLayoutEffect(() => {
@@ -97,7 +96,6 @@ export default function PokemonSection({ pokemon, pokemonList }: Props) {
                                         index={selected}
                                         remove={() => remove(selected)}
                                         canRemove={pokemon.length > 1}
-                                        pokemonList={pokemonList}
                                     />
                                 )}
                             </Container>

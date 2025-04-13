@@ -3,7 +3,7 @@ import { Box, Button, Typography } from '@mui/material';
 import { Field } from 'formik';
 import { Pokemon } from 'koffing';
 import { useLayoutEffect, useState } from 'react';
-import { pokedex } from '../Pokedex';
+import { getPokemonList, pokedex } from '../Pokedex';
 import NumberField from './NumberField';
 import { AutocompleteSelectField } from './SelectField';
 import SliderField from './SliderField';
@@ -13,7 +13,6 @@ interface Props {
     index: number;
     remove: () => void;
     canRemove: boolean;
-    pokemonList: string[];
 }
 
 export default function PokemonInfo({
@@ -21,7 +20,6 @@ export default function PokemonInfo({
     index,
     remove,
     canRemove,
-    pokemonList,
 }: Props) {
     const [sprite, setSprite] = useState<string | undefined>(undefined);
     useLayoutEffect(() => {
@@ -61,7 +59,7 @@ export default function PokemonInfo({
                     <Field
                         name={`pokemon.${index}.name`}
                         label="Species"
-                        options={pokemonList}
+                        options={getPokemonList()}
                         as={AutocompleteSelectField}
                     />
                     <Field
