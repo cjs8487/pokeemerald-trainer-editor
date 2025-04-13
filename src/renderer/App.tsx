@@ -1,5 +1,10 @@
+import { Box, List, ListItemButton, ListItemText } from '@mui/material';
 import { useCallback, useLayoutEffect, useState } from 'react';
-import { AutoSizer, List, ListRowProps } from 'react-virtualized';
+import {
+    AutoSizer,
+    ListRowProps,
+    List as VirtualList,
+} from 'react-virtualized';
 import 'react-virtualized/styles.css';
 import { Trainer } from '../shared/types';
 import './App.css';
@@ -49,17 +54,24 @@ export default function App() {
             style, // Style object to be applied to row (to position it)
         }: ListRowProps) => {
             return (
-                <button
+                <ListItemButton
                     key={key}
                     onClick={() => setSelectedTrainer(index)}
-                    type="button"
                     style={style}
+                    selected={index === selectedTrainer}
+                    sx={{
+                        borderLeft: index === selectedTrainer ? 5 : 0,
+                        borderColor: (theme) => theme.palette.info.main,
+                        minWidth: 'fit-content',
+                        paddingLeft: index === selectedTrainer ? 3 : 2,
+                        transition: 'all 0.25s ease-in-out',
+                    }}
                 >
-                    {trainers[index].key}
-                </button>
+                    <ListItemText>{trainers[index].key}</ListItemText>
+                </ListItemButton>
             );
         },
-        [trainers],
+        [trainers, selectedTrainer],
     );
 
     if (!loadChecksComplete) {
@@ -77,25 +89,35 @@ export default function App() {
                 </>
             )}
             {trainers.length > 0 && (
-                <div style={{ display: 'flex', height: '100%', columnGap: 4 }}>
-                    <div style={{ flex: '1 0 auto', minWidth: 'fit-content' }}>
+                <Box sx={{ display: 'flex', height: '100%' }}>
+                    <Box
+                        sx={{
+                            flex: '1 1 auto',
+                            width: 'fit-content',
+                            borderRight: 1,
+                            borderColor: 'divider',
+                        }}
+                    >
                         <AutoSizer>
                             {({ width, height }) => (
                                 <List
                                     width={width}
                                     height={height}
                                     rowCount={trainers.length}
-                                    rowHeight={40}
+                                    rowHeight={50}
                                     rowRenderer={trainerRow}
+                                    component={VirtualList}
+                                    sx={{ minWidth: 'fit-content' }}
                                 />
                             )}
                         </AutoSizer>
-                    </div>
-                    <div
-                        style={{
-                            maxWidth: '75%',
+                    </Box>
+                    <Box
+                        sx={{
+                            maxWidth: '70%',
                             maxHeight: '100%',
-                            flexGrow: 1,
+                            flex: '1 1 auto',
+                            paddingLeft: 2,
                         }}
                     >
                         <TrainerPanel
@@ -105,8 +127,8 @@ export default function App() {
                             trainerClasses={trainerClasses}
                             encounterMusic={encounterMusic}
                         />
-                    </div>
-                </div>
+                    </Box>
+                </Box>
             )}
         </div>
     );
