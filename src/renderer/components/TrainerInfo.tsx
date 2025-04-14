@@ -1,12 +1,12 @@
 import {
-    TextField,
-    FormControl,
-    InputLabel,
-    Select,
-    MenuItem,
-    Switch,
-    FormControlLabel,
     Box,
+    FormControl,
+    FormControlLabel,
+    InputLabel,
+    MenuItem,
+    Select,
+    Switch,
+    TextField,
 } from '@mui/material';
 import { Field } from 'formik';
 

@@ -84,6 +84,7 @@ export default function PokemonSection({ pokemon }: Props) {
                             <Container
                                 sx={{
                                     width: '80%',
+                                    maxWidth: '80%',
                                     height,
                                     maxHeight: height,
                                     overflowY: 'auto',

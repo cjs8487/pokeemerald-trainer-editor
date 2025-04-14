@@ -1,11 +1,19 @@
 import Delete from '@mui/icons-material/Delete';
-import { Box, Button, Typography } from '@mui/material';
+import {
+    Box,
+    Button,
+    ListItemText,
+    MenuItem,
+    Tooltip,
+    Typography,
+} from '@mui/material';
 import { Field } from 'formik';
 import { Pokemon } from 'koffing';
 import { useLayoutEffect, useState } from 'react';
-import { getPokemonList, pokedex } from '../Pokedex';
+import { titleCase } from '../../shared/utils';
+import { getAbility, getPokemonList, pokedex } from '../Pokedex';
 import NumberField from './NumberField';
-import { AutocompleteSelectField } from './SelectField';
+import { AutocompleteSelectField, SelectField } from './SelectField';
 import SliderField from './SliderField';
 
 interface MoveSelectProps {
@@ -31,6 +39,12 @@ interface Props {
     canRemove: boolean;
 }
 
+interface PokemonAbility {
+    name: string;
+    isHidden: boolean;
+    effect: string;
+}
+
 export default function PokemonInfo({
     pokemon,
     index,
@@ -39,6 +53,7 @@ export default function PokemonInfo({
 }: Props) {
     const [sprite, setSprite] = useState<string | undefined>(undefined);
     const [moveList, setMoveList] = useState<string[]>([]);
+    const [abilities, setAbilities] = useState<PokemonAbility[]>([]);
 
     useLayoutEffect(() => {
         const load = async () => {
@@ -47,15 +62,27 @@ export default function PokemonInfo({
                     const mon = await pokedex.getPokemonByName(pokemon.name);
                     setSprite(mon.sprites.front_default ?? '');
                     setMoveList(
-                        mon.moves.map((m) =>
-                            m.move.name
-                                .split('-')
-                                .map(
-                                    (w) =>
-                                        w.charAt(0).toUpperCase() + w.slice(1),
-                                )
-                                .join(' '),
-                        ),
+                        mon.moves.map((m) => titleCase(m.move.name, '-')),
+                    );
+                    setAbilities(
+                        mon.abilities.map((a) => {
+                            const ability = getAbility(a.ability.name);
+                            if (ability) {
+                                return {
+                                    name: titleCase(a.ability.name, '-'),
+                                    effect:
+                                        ability.effect_entries.filter(
+                                            (e) => e.language.name === 'en',
+                                        )[0].effect ?? '',
+                                    isHidden: a.is_hidden ?? false,
+                                };
+                            }
+                            return {
+                                name: titleCase(a.ability.name, '-'),
+                                effect: '',
+                                isHidden: a.is_hidden ?? false,
+                            };
+                        }),
                     );
                 }
             } catch {
@@ -67,7 +94,13 @@ export default function PokemonInfo({
 
     return (
         <Box sx={{ width: '100%', pt: 1 }}>
-            <Box sx={{ width: '100%', display: 'flex', columnGap: 1 }}>
+            <Box
+                sx={{
+                    width: '100%',
+                    display: 'flex',
+                    columnGap: 1,
+                }}
+            >
                 <img
                     src={sprite}
                     alt={pokemon.name}
@@ -99,6 +132,29 @@ export default function PokemonInfo({
                         max={100}
                         label="Level"
                     />
+                    <SelectField
+                        name={`pokemon.${index}.ability`}
+                        label="Ability"
+                    >
+                        {abilities.map((a) => (
+                            <MenuItem key={a.effect} value={a.name}>
+                                <Tooltip
+                                    title={a.effect}
+                                    slotProps={{
+                                        tooltip: {
+                                            sx: {
+                                                fontSize: (theme) =>
+                                                    theme.typography.subtitle2,
+                                                whiteSpace: 'pre-line',
+                                            },
+                                        },
+                                    }}
+                                >
+                                    <ListItemText primary={a.name} />
+                                </Tooltip>
+                            </MenuItem>
+                        ))}
+                    </SelectField>
                     <Box
                         component="fieldset"
                         sx={{
