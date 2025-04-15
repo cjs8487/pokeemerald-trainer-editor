@@ -112,6 +112,7 @@
     "electron-settings": "^4.0.4",
     "electron-updater": "^6.3.9",
     "formik": "^2.4.6",
+    "fuzzysort": "^3.1.0",
     "koffing": "^1.0.0",
     "pokeapi-js-wrapper": "^1.2.8",
     "react": "^19.0.0",

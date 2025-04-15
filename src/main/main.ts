@@ -22,9 +22,10 @@ import log from 'electron-log';
 import { autoUpdater } from 'electron-updater';
 import { createReadStream } from 'fs';
 import { access } from 'fs/promises';
-import { Pokemon, ShowdownParser } from 'koffing';
+import { ShowdownParser } from 'koffing';
 import path from 'path';
 import { createInterface } from 'readline/promises';
+import { Trainer } from '../shared/types';
 import MenuBuilder from './menu';
 import { protocolHandler } from './protocols';
 import { getWorkingDirectory, setWorkingDirectory } from './store';
@@ -51,21 +52,6 @@ const selectFolder = async () => {
     return null;
 };
 
-interface Trainer {
-    key: string;
-    name: string;
-    pic: string;
-    class: string;
-    gender: 'Male' | 'Female';
-    music: string;
-    items: string[];
-    doubleBattle: boolean;
-    ai: string[];
-    mugshot?: 'Purple' | 'Green' | 'Pink' | 'Blue' | 'Yellow';
-    startingStatus?: unknown;
-    pokemon?: Pokemon[];
-}
-
 const prepare = async (_: IpcMainInvokeEvent, folder: string) => {
     let hasAppData = false;
     try {
@@ -86,11 +72,10 @@ const prepare = async (_: IpcMainInvokeEvent, folder: string) => {
         { encoding: 'utf8' },
     );
 
-    const trainers: Trainer[] = [];
+    const trainers: { [k: string]: Trainer } = {};
     const rl = createInterface(fileStream);
 
     const emptyTrainer: Trainer = {
-        key: '',
         name: '',
         class: '',
         pic: '',
@@ -101,6 +86,7 @@ const prepare = async (_: IpcMainInvokeEvent, folder: string) => {
         items: [],
     };
     let currTrainer = emptyTrainer;
+    let currKey = '';
     let processingTrainer = false;
     let processingPokemon = false;
     let inComment = false;
@@ -126,17 +112,17 @@ const prepare = async (_: IpcMainInvokeEvent, folder: string) => {
             continue;
         }
         if (line.startsWith('===')) {
-            if (currTrainer.key) {
+            if (currKey) {
                 const showdownParser = new ShowdownParser(teamStr);
                 const team = showdownParser.parse();
                 currTrainer.pokemon = team.teams[0].pokemon;
-                trainers.push(currTrainer);
+                trainers[currKey] = currTrainer;
                 currTrainer = structuredClone(emptyTrainer);
                 processingTrainer = true;
                 processingPokemon = false;
                 teamStr = '';
             }
-            currTrainer.key = line.split('===')[1].trim();
+            currKey = line.split('===')[1].trim();
         } else if (line.trim() === '') {
             // empty lines come between trainers and pokemon
             if (processingTrainer && !processingPokemon) {

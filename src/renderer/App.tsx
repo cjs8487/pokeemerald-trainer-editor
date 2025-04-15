@@ -1,4 +1,11 @@
-import { Box, List, ListItemButton, ListItemText } from '@mui/material';
+import {
+    Box,
+    List,
+    ListItemButton,
+    ListItemText,
+    TextField,
+} from '@mui/material';
+import fuzzysort from 'fuzzysort';
 import { useCallback, useLayoutEffect, useState } from 'react';
 import {
     AutoSizer,
@@ -15,11 +22,13 @@ export default function App() {
     const [loadChecksComplete, setLoadChecksComplete] = useState(false);
     const [globalsLoaded, setGlobalsLoaded] = useState(false);
     const [folder, setFolder] = useState('');
-    const [trainers, setTrainers] = useState<Trainer[]>([]);
-    const [selectedTrainer, setSelectedTrainer] = useState(0);
+    const [trainers, setTrainers] = useState<{ [k: string]: Trainer }>({});
+    const [selectedTrainer, setSelectedTrainer] = useState('TRAINER_NONE');
     const [trainerPics, setTrainerPics] = useState<string[]>([]);
     const [trainerClasses, setTrainerClasses] = useState<string[]>([]);
     const [encounterMusic, setEncounterMusic] = useState<string[]>([]);
+
+    const [search, setSearch] = useState('');
 
     useLayoutEffect(() => {
         const setup = async () => {
@@ -50,6 +59,10 @@ export default function App() {
         setFolder(selectedFolder);
     }, []);
 
+    const filteredList = fuzzysort.go(search, Object.keys(trainers), {
+        all: true,
+    });
+
     const trainerRow = useCallback(
         ({
             key, // Unique key within array of rows
@@ -58,25 +71,26 @@ export default function App() {
             // isVisible, // This row is visible within the List (eg it is not an overscanned row)
             style, // Style object to be applied to row (to position it)
         }: ListRowProps) => {
+            const trainer = filteredList[index].target;
             return (
                 <ListItemButton
                     key={key}
-                    onClick={() => setSelectedTrainer(index)}
+                    onClick={() => setSelectedTrainer(trainer)}
                     style={style}
-                    selected={index === selectedTrainer}
+                    selected={trainer === selectedTrainer}
                     sx={{
-                        borderLeft: index === selectedTrainer ? 5 : 0,
+                        borderLeft: trainer === selectedTrainer ? 5 : 0,
                         borderColor: (theme) => theme.palette.info.main,
                         minWidth: 'fit-content',
-                        paddingLeft: index === selectedTrainer ? 3 : 2,
+                        paddingLeft: trainer === selectedTrainer ? 3 : 2,
                         transition: 'all 0.25s ease-in-out',
                     }}
                 >
-                    <ListItemText>{trainers[index].key}</ListItemText>
+                    <ListItemText>{trainer}</ListItemText>
                 </ListItemButton>
             );
         },
-        [trainers, selectedTrainer],
+        [selectedTrainer, filteredList],
     );
 
     if (!loadChecksComplete || !globalsLoaded) {
@@ -93,48 +107,54 @@ export default function App() {
                     </button>
                 </>
             )}
-            {trainers.length > 0 && (
-                <Box sx={{ display: 'flex', height: '100%' }}>
-                    <Box
-                        sx={{
-                            flex: '1 1 auto',
-                            width: 'fit-content',
-                            borderRight: 1,
-                            borderColor: 'divider',
-                        }}
-                    >
-                        <AutoSizer>
-                            {({ width, height }) => (
-                                <List
-                                    width={width}
-                                    height={height}
-                                    rowCount={trainers.length}
-                                    rowHeight={50}
-                                    rowRenderer={trainerRow}
-                                    component={VirtualList}
-                                    sx={{ minWidth: 'fit-content' }}
-                                />
-                            )}
-                        </AutoSizer>
-                    </Box>
-                    <Box
-                        sx={{
-                            width: '70%',
-                            height: '100%',
-                            maxHeight: '100%',
-                            overflowY: 'auto',
-                        }}
-                    >
-                        <TrainerPanel
-                            key={trainers[selectedTrainer].key}
-                            trainer={trainers[selectedTrainer]}
-                            trainerPics={trainerPics}
-                            trainerClasses={trainerClasses}
-                            encounterMusic={encounterMusic}
-                        />
-                    </Box>
+            <Box sx={{ display: 'flex', height: '100%' }}>
+                <Box
+                    sx={{
+                        flex: '1 1 auto',
+                        width: 'fit-content',
+                        borderRight: 1,
+                        borderColor: 'divider',
+                    }}
+                >
+                    <TextField
+                        placeholder="Search for a trainer"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        size="small"
+                        fullWidth
+                        sx={{ pr: 1 }}
+                    />
+                    <AutoSizer>
+                        {({ width, height }) => (
+                            <List
+                                width={width}
+                                height={height}
+                                rowCount={filteredList.length}
+                                rowHeight={50}
+                                rowRenderer={trainerRow}
+                                component={VirtualList}
+                                sx={{ minWidth: 'fit-content' }}
+                            />
+                        )}
+                    </AutoSizer>
                 </Box>
-            )}
+                <Box
+                    sx={{
+                        width: '70%',
+                        height: '100%',
+                        maxHeight: '100%',
+                        overflowY: 'auto',
+                    }}
+                >
+                    <TrainerPanel
+                        key={selectedTrainer}
+                        trainer={trainers[selectedTrainer]}
+                        trainerPics={trainerPics}
+                        trainerClasses={trainerClasses}
+                        encounterMusic={encounterMusic}
+                    />
+                </Box>
+            </Box>
         </div>
     );
 }

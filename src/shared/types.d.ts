@@ -1,7 +1,6 @@
 import { Pokemon } from 'koffing';
 
 export interface Trainer {
-    key: string;
     name: string;
     pic: string;
     class: string;
