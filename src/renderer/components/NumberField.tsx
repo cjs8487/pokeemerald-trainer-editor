@@ -1,6 +1,6 @@
 /* eslint-disable react/require-default-props */
-import { Box, Button, TextField } from '@mui/material';
-import { ErrorMessage, useField } from 'formik';
+import { Box, Button, SxProps, TextField } from '@mui/material';
+import { useField } from 'formik';
 import { useCallback } from 'react';
 
 interface NumberInputProps {
@@ -8,12 +8,14 @@ interface NumberInputProps {
     label: string;
     min?: number;
     max?: number;
+    sx?: SxProps;
 }
 export default function NumberField({
     name,
     label,
     min,
     max,
+    sx,
 }: NumberInputProps) {
     const [{ value }, , helpers] = useField<number>(name);
     const setValue = useCallback(
@@ -32,50 +34,47 @@ export default function NumberField({
     }, [value, setValue]);
 
     return (
-        <>
-            <Box display="flex" height="max-content">
-                <Button
-                    type="button"
-                    variant="contained"
-                    onClick={decrement}
-                    disabled={min !== undefined ? value <= min : false}
-                    sx={{
-                        borderTopRightRadius: 0,
-                        borderBottomRightRadius: 0,
-                        minWidth: 0,
-                    }}
-                >
-                    -
-                </Button>
-                <TextField
-                    label={label}
-                    inputMode="numeric"
-                    slotProps={{
-                        htmlInput: {
-                            pattern: '[0-9]*',
-                        },
-                        root: { style: { borderRadius: 0 } },
-                    }}
-                    value={value}
-                    onChange={(e) => setValue(Number(e.target.value))}
-                    size="small"
-                    sx={{ flexGrow: 1 }}
-                />
-                <Button
-                    type="button"
-                    variant="contained"
-                    onClick={increment}
-                    disabled={max !== undefined ? value >= max : false}
-                    sx={{
-                        borderTopLeftRadius: 0,
-                        borderBottomLeftRadius: 0,
-                        minWidth: 0,
-                    }}
-                >
-                    +
-                </Button>
-            </Box>
-            <ErrorMessage name={name} />
-        </>
+        <Box display="flex" height="max-content" sx={sx}>
+            <Button
+                type="button"
+                variant="contained"
+                onClick={decrement}
+                disabled={min !== undefined ? value <= min : false}
+                sx={{
+                    borderTopRightRadius: 0,
+                    borderBottomRightRadius: 0,
+                    minWidth: 0,
+                }}
+            >
+                -
+            </Button>
+            <TextField
+                label={label}
+                inputMode="numeric"
+                slotProps={{
+                    htmlInput: {
+                        pattern: '[0-9]*',
+                    },
+                    root: { style: { borderRadius: 0 } },
+                }}
+                value={value}
+                onChange={(e) => setValue(Number(e.target.value))}
+                size="small"
+                sx={{ flexGrow: 1 }}
+            />
+            <Button
+                type="button"
+                variant="contained"
+                onClick={increment}
+                disabled={max !== undefined ? value >= max : false}
+                sx={{
+                    borderTopLeftRadius: 0,
+                    borderBottomLeftRadius: 0,
+                    minWidth: 0,
+                }}
+            >
+                +
+            </Button>
+        </Box>
     );
 }

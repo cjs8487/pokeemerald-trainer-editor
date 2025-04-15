@@ -2,6 +2,7 @@ import Delete from '@mui/icons-material/Delete';
 import {
     Box,
     Button,
+    Chip,
     ListItemText,
     MenuItem,
     Tooltip,
@@ -11,7 +12,7 @@ import { Field } from 'formik';
 import { Pokemon } from 'koffing';
 import { useLayoutEffect, useState } from 'react';
 import { titleCase } from '../../shared/utils';
-import { getAbility, getPokemonList, pokedex } from '../Pokedex';
+import { getAbility, getNatureList, getPokemonList, pokedex } from '../Pokedex';
 import NumberField from './NumberField';
 import { AutocompleteSelectField, SelectField } from './SelectField';
 import SliderField from './SliderField';
@@ -41,7 +42,6 @@ interface Props {
 
 interface PokemonAbility {
     name: string;
-    isHidden: boolean;
     effect: string;
 }
 
@@ -74,13 +74,11 @@ export default function PokemonInfo({
                                         ability.effect_entries.filter(
                                             (e) => e.language.name === 'en',
                                         )[0].effect ?? '',
-                                    isHidden: a.is_hidden ?? false,
                                 };
                             }
                             return {
                                 name: titleCase(a.ability.name, '-'),
                                 effect: '',
-                                isHidden: a.is_hidden ?? false,
                             };
                         }),
                     );
@@ -97,99 +95,115 @@ export default function PokemonInfo({
             <Box
                 sx={{
                     width: '100%',
-                    display: 'flex',
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(3, 1fr)',
+                    gridTemplateRows: 'repeat(4, auto)',
                     columnGap: 1,
+                    rowGap: 1.5,
                 }}
             >
                 <img
                     src={sprite}
                     alt={pokemon.name}
                     style={{
-                        flex: '0 1 33%',
+                        gridRow: '1/-1',
+                        gridColumn: 'span 1',
                         aspectRatio: '1 / 1',
                         objectFit: 'contain',
                         imageRendering: 'crisp-edges',
+                        height: '100%',
+                        maxWidth: '100%',
+                        display: 'grid',
                     }}
                 />
+                <Field
+                    name={`pokemon.${index}.name`}
+                    label="Species"
+                    options={getPokemonList()}
+                    as={AutocompleteSelectField}
+                    sx={{ gridColumn: 'span 2' }}
+                />
+                <NumberField
+                    name={`pokemon.${index}.level`}
+                    min={1}
+                    max={100}
+                    label="Level"
+                    sx={{ gridColumn: 'span 2' }}
+                />
+                <SelectField name={`pokemon.${index}.nature  `} label="Nature">
+                    {getNatureList().map((n) => (
+                        <MenuItem key={n.name} value={titleCase(n.name)}>
+                            <Tooltip
+                                title={
+                                    n.increased_stat ? (
+                                        <>
+                                            <Chip
+                                                label={`+ ${titleCase(n.increased_stat?.name ?? '', '-')}`}
+                                                size="small"
+                                                color="error"
+                                            />
+                                            <Chip
+                                                label={`- ${titleCase(n.decreased_stat?.name ?? '', '-')}`}
+                                                size="small"
+                                                color="primary"
+                                            />
+                                        </>
+                                    ) : (
+                                        'No stat change'
+                                    )
+                                }
+                                slotProps={{
+                                    tooltip: {
+                                        sx: {
+                                            fontSize: (theme) =>
+                                                theme.typography.subtitle2,
+                                        },
+                                    },
+                                }}
+                            >
+                                <ListItemText primary={titleCase(n.name)} />
+                            </Tooltip>
+                        </MenuItem>
+                    ))}
+                </SelectField>
+                <SelectField name={`pokemon.${index}.ability`} label="Ability">
+                    {abilities.map((a) => (
+                        <MenuItem key={a.effect} value={a.name}>
+                            <Tooltip
+                                title={a.effect}
+                                slotProps={{
+                                    tooltip: {
+                                        sx: {
+                                            fontSize: (theme) =>
+                                                theme.typography.subtitle2,
+                                            whiteSpace: 'pre-line',
+                                        },
+                                    },
+                                }}
+                            >
+                                <ListItemText primary={a.name} />
+                            </Tooltip>
+                        </MenuItem>
+                    ))}
+                </SelectField>
                 <Box
+                    component="fieldset"
                     sx={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        rowGap: 1.5,
-                        flex: '1 0 67%',
+                        borderColor: 'divider',
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(2, 1fr)',
+                        gap: 0.5,
+                        width: '100%',
+                        justifyItems: 'stretch',
+                        gridColumnStart: 'span 2',
                     }}
                 >
-                    <Field
-                        name={`pokemon.${index}.name`}
-                        label="Species"
-                        options={getPokemonList()}
-                        as={AutocompleteSelectField}
-                    />
-                    <Field
-                        name={`pokemon.${index}.level`}
-                        as={NumberField}
-                        min={1}
-                        max={100}
-                        label="Level"
-                    />
-                    <SelectField
-                        name={`pokemon.${index}.ability`}
-                        label="Ability"
-                    >
-                        {abilities.map((a) => (
-                            <MenuItem key={a.effect} value={a.name}>
-                                <Tooltip
-                                    title={a.effect}
-                                    slotProps={{
-                                        tooltip: {
-                                            sx: {
-                                                fontSize: (theme) =>
-                                                    theme.typography.subtitle2,
-                                                whiteSpace: 'pre-line',
-                                            },
-                                        },
-                                    }}
-                                >
-                                    <ListItemText primary={a.name} />
-                                </Tooltip>
-                            </MenuItem>
-                        ))}
-                    </SelectField>
-                    <Box
-                        component="fieldset"
-                        sx={{
-                            borderColor: 'divider',
-                            display: 'grid',
-                            gridTemplateColumns: 'repeat(2, 1fr)',
-                            gap: 0.5,
-                            width: '100%',
-                            justifyItems: 'stretch',
-                        }}
-                    >
-                        <Typography component="legend">Moves</Typography>
+                    <Typography component="legend">Moves</Typography>
+                    <MoveSelect monIndex={index} slot={0} moves={moveList} />
+                    <MoveSelect monIndex={index} slot={1} moves={moveList} />
 
-                        <MoveSelect
-                            monIndex={index}
-                            slot={0}
-                            moves={moveList}
-                        />
-                        <MoveSelect
-                            monIndex={index}
-                            slot={1}
-                            moves={moveList}
-                        />
-
-                        <MoveSelect
-                            monIndex={index}
-                            slot={2}
-                            moves={moveList}
-                        />
-                        <MoveSelect
-                            monIndex={index}
-                            slot={3}
-                            moves={moveList}
-                        />
-                    </Box>
+                    <MoveSelect monIndex={index} slot={2} moves={moveList} />
+                    <MoveSelect monIndex={index} slot={3} moves={moveList} />
                 </Box>
             </Box>
             <Box
